@@ -1,0 +1,124 @@
+From patchwork Sat Sep  5 10:18:08 2026
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+X-Patchwork-Id: 158173
+Received: from tor.lore.kernel.org ([172.105.105.114])
+	by linuxtv.org with esmtps  (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from
+ <linux-media+bounces-72674-patchwork=linuxtv.org@vger.kernel.org>)
+	id 1x2nTg-0002UD-0g
+	for patchwork@linuxtv.org;
+	Sat, 05 Sep 2026 10:18:29 +0000
+Received: from smtp.subspace.kernel.org (conduit.subspace.kernel.org
+ [100.90.174.1])
+	by tor.lore.kernel.org (Postfix) with ESMTP id A874E2D25C
+	for <patchwork@linuxtv.org>; Sat,  5 Sep 2026 10:18:26 +0000 (UTC)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C63ED2512C8;
+	Sat,  5 Sep 2026 10:18:25 +0000 (UTC)
+X-Original-To: linux-media@vger.kernel.org
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A43451A6808
+	for <linux-media@vger.kernel.org>; Sat,  5 Sep 2026 10:18:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+ arc=none smtp.client-ip=202.181.97.72
+ARC-Seal: i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788603505; cv=none;
+ b=Vd9q1/clWttYPYf1z21++koTWf9eqPIx8yfIy09hB9bQ7SW/ow2qbiXp7hZmqAveOyEF8SQxlyypt9UVUPY6Gv1xolqMyNmPi0N0GYxKmzJq39HMmGodRE+sA3oNH41lOCOU51TnjS2RFWf2go9INOfY1IP1WNgdhEszWNSOz44=
+ARC-Message-Signature: i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788603505; c=relaxed/simple;
+	bh=PMvYNelQgJHzN7Ewne45g4FdO75BfLG2j3Xoburo0q0=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type;
+ b=Ce3/q3zyY/mIs6LnevwPwV0vSpunc+vCtzIBuoEdlYmZZWZ0xj+DTqVnEUujnOm26wiqzEZU04dDMFZ2Ehw55oDsRai0lZ/yweOAiAqV3uQRtuXBC9G88odxrPq0Ba1arYeVDfO87NEi6E5MfPSOKVeYAY9Bl6CL8cr7k2WFPrQ=
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=I-love.SAKURA.ne.jp;
+ spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp;
+ arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org;
+ spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 685AI9gK026564;
+	Sat, 5 Sep 2026 19:18:09 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.6] (M106072072000.v4.enabler.ne.jp [106.72.72.0])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 685AI8R7026559
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Sat, 5 Sep 2026 19:18:09 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <09b616df-ea9f-4ea1-86be-ab600119f9ae@I-love.SAKURA.ne.jp>
+Date: Sat, 5 Sep 2026 19:18:08 +0900
+Precedence: bulk
+X-Mailing-List: linux-media@vger.kernel.org
+List-Id: <linux-media.vger.kernel.org>
+List-Subscribe: <mailto:linux-media+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-media+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Kees Cook <kees@kernel.org>,
+        Tomoki Sekiyama <tomoki.sekiyama@gmail.com>,
+        linux-media@vger.kernel.org
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH v3] media: usb: siano: don't set URB_FREE_BUFFER flag
+X-Virus-Status: clean
+X-Anti-Virus-Server: fsav312.rs.sakura.ne.jp
+X-LSpam-Score: -5.3 (-----)
+X-LSpam-Report: No,
+ score=-5.3 required=5.0
+ tests=ARC_SIGNED=0.001,ARC_VALID=-0.1,BAYES_00=-1.9,DMARC_NONE=0.898,HEADER_FROM_DIFFERENT_DOMAINS=0.5,MAILING_LIST_MULTI=-1,RCVD_IN_VALIDITY_CERTIFIED=-3,RCVD_IN_VALIDITY_RPBL=1.31,RCVD_IN_VALIDITY_SAFE=-2,SPF_HELO_NONE=0.001,SPF_PASS=-0.001,URIBL_BLOCKED=0.001
+ autolearn=ham autolearn_force=no
+
+syzbot is reporting invalid free at usb_free_urb(), for
+
+  smscore_register_device() allocates all buffers at once as an array
+
+  smscore_createbuffer() maps each element in the array to cb->p
+
+  usb_fill_bulk_urb() assigns urb->transfer_buffer using cb->p
+  which may point to a non-head element in the array
+
+  URB_FREE_BUFFER causes usb_free_urb() to free urb->transfer_buffer
+  which may point to a non-head element in the array
+
+The urb->transfer_buffer must point to an address returned by kmalloc()
+family if URB_FREE_BUFFER flag is set. But since the urb->transfer_buffer
+allocation strategy for this module is to allocate buffers upon device
+registration and free buffers upon device unregistration, we should
+avoid setting URB_FREE_BUFFER flag. Otherwise, double free or invalid
+free will happen.
+
+Reported-by: syzbot+b466336413a1fba398a5@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=b466336413a1fba398a5
+Fixes: 564246fd3ff4 ("media: siano: Fix coherent memory allocation failure on arm64")
+Tested-by: Tomoki Sekiyama <tomoki.sekiyama@gmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+---
+Mauro Carvalho Chehab is not responding
+( https://lkml.kernel.org/r/bf19e526-3327-46a5-8ecd-4baaadef5bcf@I-love.SAKURA.ne.jp ).
+Greg, can you take this patch?
+
+ drivers/media/usb/siano/smsusb.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/media/usb/siano/smsusb.c b/drivers/media/usb/siano/smsusb.c
+index 0fdc2e0950b7..8140dc0c8b7d 100644
+--- a/drivers/media/usb/siano/smsusb.c
++++ b/drivers/media/usb/siano/smsusb.c
+@@ -168,7 +168,6 @@ static int smsusb_submit_urb(struct smsusb_device_t *dev,
+ 		smsusb_onresponse,
+ 		surb
+ 	);
+-	surb->urb->transfer_flags |= URB_FREE_BUFFER;
+ 
+ 	return usb_submit_urb(surb->urb, GFP_ATOMIC);
+ }

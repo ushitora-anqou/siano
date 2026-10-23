@@ -1,0 +1,199 @@
+From patchwork Sun Oct 18 05:43:32 2026
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Patchwork-Submitter: Ryotaro Banno <ryotaro.banno@gmail.com>
+X-Patchwork-Id: 166003
+Received: from sin.lore.kernel.org ([104.64.211.4])
+	by linuxtv.org with esmtps  (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from
+ <linux-media+bounces-78156-patchwork=linuxtv.org@vger.kernel.org>)
+	id 1xIJi6-00074X-2S
+	for patchwork@linuxtv.org;
+	Sun, 18 Oct 2026 05:45:31 +0000
+Received: from smtp.subspace.kernel.org (conduit.subspace.kernel.org
+ [100.90.174.1])
+	by sin.lore.kernel.org (Postfix) with ESMTP id 812092A9A3
+	for <patchwork@linuxtv.org>; Sun, 18 Oct 2026 05:44:56 +0000 (UTC)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8CD213F1079;
+	Sun, 18 Oct 2026 05:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.b="cVfBUkrd"
+X-Original-To: linux-media@vger.kernel.org
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com
+ [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B2983D75A2
+	for <linux-media@vger.kernel.org>; Sun, 18 Oct 2026 05:44:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+ arc=none smtp.client-ip=209.85.214.174
+ARC-Seal: i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792302295; cv=none;
+ b=GMf6xd+LobNtndh0q8nGeXbWnOZNQBoguoLfO+UPXReV9dKoyLUTQNNXdrxA2B4eoyNXplFuClTzgAblAoZhKUOemhYSeOYdyZSMCgTHekeeeiq/tF1QtSZwZfFcBULoN/WAr5ENg83vaI9bjrzu6wqlY7bqW8OHoznJQGRScPc=
+ARC-Message-Signature: i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792302295; c=relaxed/simple;
+	bh=22oYmraKf3M0qeI2hZlSz0Ih1lqpjgI8wQZkelEo1JI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+ b=Am+v+e/0GX20PkmudrmhsWJQFvhAbYgVqJFJw7W1qstFRf3seowKtgzKOlgOP1P7ercxeEG7uHcXgusGUAYzvjArcvam+JcfTZdKJScpIuMeW0LL+Xv8Tyv96asZswC76MNmBv/s3D8QlAaTFz1Y+Xq1B5lm2uiAs3RBlm9DPxE=
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=gmail.com;
+ spf=pass smtp.mailfrom=gmail.com;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.b=cVfBUkrd; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org;
+ dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+ spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pl1-f174.google.com with SMTP id
+ d9443c01a7336-2e8fe8e343fso4594955ad.2
+        for <linux-media@vger.kernel.org>;
+ Sat, 17 Oct 2026 22:44:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792302293; x=1792907093;
+ darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7d0nJ/frXW3wHswZvrpSxzn29F8Cv/ZaDDOaazmw5BA=;
+        b=cVfBUkrd52oKTfFX7vervU98wbvYs1WHiIYAcv/hVF2ZQd3sqRQ9eVjoSABt+lZp2g
+         tJnzKremyk498OAM/ih39dEehtbyTJEy6NARVsi29jPxMdgqPedlZwYP2yoROO/S/iLc
+         2fSalilCdqgsHOGzD43e9bHQEck0pOu7uAxT5vVtwqQwfs95bDoYqFjMlOJNBd/+z01L
+         EKYtp6xlLNe9Qv2q0WoomraSbT3hqXcx24/6dYWG+FMhlLDo4CU5qj/n2INGvoRYpjHc
+         t3MxQ44ohh+ft8gz0viiT881TH0KnmRwiatTL7OuQMDlLJS5cQ6quz2p5h2JO27Q6XD9
+         deuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792302293; x=1792907093;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=7d0nJ/frXW3wHswZvrpSxzn29F8Cv/ZaDDOaazmw5BA=;
+        b=MtjXNaEZBQTBwiz+R2i5/TG7AKxTVWVu1F5y5BN4yhhBV2cPJjzwHVvEPexD30BejA
+         T5ksWfOt19ZdIra56WE2TwRZfYBa3J69mEGt2pqJ/wEovRbu0oxxCCWtql0/MaCpyoxL
+         RdehCxk2yrJwQ5ESSO1zTfxWpKeuKlH07KXzipsdUi/oZg+nB4T2B/gz4HeOZFvAo/Fs
+         VBhzqfVdRr0hOOkmXa4xAPrZ2P8sGLInQVOFg8Zqxqt97wmnc/jJuLrrSnCgV3pCQJM6
+         LatT3Go5HYq2EHCX3VWbG6GE9yHl3JZH1okE6HSbQAFVOuxvKNsrvAeDI4fb1blcHpNu
+         Fk4Q==
+X-Forwarded-Encrypted: i=1;
+ AKwUvByBmxdmNodr39ojkzJpco4sgNbdzN+L1KERJAqpujLBa6yv8mFkVdjUsKRGkTsjRrHgWtZEF7bhhHhTYQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKO9f8XyBhoejaqDb651PYaEToTRpsHDn1LG3ZvLZHX+beWDSNP
+	+DfVvWLQ6xmtArrPCEBRdDkhVV9QqFZ3Ccq4yC9x95OrsNaweepTktI/
+X-Gm-Gg: AYBFou1waMCY5S6qJKqGwOIanfUyV7OSgGSYI4HprTLtytsyKFtqNu1iuQbeev1reVc
+	FYnd2WU0eodq8Y5KJlh9/jatByt7o7M56MZwSyWsMGq/FvczYhHmQC4WM+fcBCWX56dsxir+a1T
+	9CNofBSK2RIqSkq1U3azgCnkXy2xELyK+U1jT+FuqtHQ+0R09Qf2Pc5ou/CV70p4T5QtkLlezZi
+	8kPhLfzb8HjTSyv2qqMJDvI3YIkgMCRwKSrgCXnEgHq/S6TCWtiVug5HAAb4RHR7L327cCeIvXn
+	pUkqdoMMp3a6rx3PQq1qcZF07oO8UyadS5g2rIaju/obcVMSi2RL2MrxHNez9HTYknxtEZscjv7
+	BxgeJ4HLQcO1WiWPzN6+/mG0a4R3z2TMMyy2GMdIfGPDD9dS6/6/yfuLWXcP0y/2WDEsxSkwbi7
+	OVfU4ohZu1MQjVyavK8RIo2AV4uImCz3KDEUt8G2wmqx5Yg+IYbwhsAYKGB36Pbp/rFCHj5K/BB
+	uUjggc+i4zHv2iklfOS/uuUnZClU9tsiS25
+X-Received: by 2002:a05:6a21:7d01:b0:3e2:24a9:699d with SMTP id
+ adf61e73a8af0-3e2262716d7mr2866162637.19.1792302293498;
+        Sat, 17 Oct 2026 22:44:53 -0700 (PDT)
+Received: from anise.tailfe078.ts.net (pkos202-079.kcn.ne.jp. [117.109.99.79])
+        by smtp.gmail.com with ESMTPSA id
+ d2e1a72fcca58-89f56c8b931sm2686648b3a.9.2026.10.17.22.44.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Oct 2026 22:44:52 -0700 (PDT)
+From: Ryotaro Banno <ryotaro.banno@gmail.com>
+To: Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Michael Krufky <mkrufky@linuxtv.org>,
+	linux-media@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] media: siano: fix oops in smsdvb_hotplug() due to race
+ condition
+Date: Sun, 18 Oct 2026 14:43:32 +0900
+Message-ID: <20261018054403.76055-1-ryotaro.banno@gmail.com>
+X-Mailer: git-send-email 2.54.0
+Precedence: bulk
+X-Mailing-List: linux-media@vger.kernel.org
+List-Id: <linux-media.vger.kernel.org>
+List-Subscribe: <mailto:linux-media+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-media+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-LSpam-Score: -7.6 (-------)
+X-LSpam-Report: No,
+ score=-7.6 required=5.0
+ tests=ARC_SIGNED=0.001,ARC_VALID=-0.1,BAYES_00=-1.9,DKIM_SIGNED=0.1,DKIM_VALID=-0.1,DKIM_VALID_AU=-0.1,DMARC_PASS=-0.001,FREEMAIL_FORGED_FROMDOMAIN=1,FREEMAIL_FROM=0.001,HEADER_FROM_DIFFERENT_DOMAINS=0.5,MAILING_LIST_MULTI=-1,RCVD_IN_DNSWL_MED=-2.3,RCVD_IN_VALIDITY_CERTIFIED=-3,RCVD_IN_VALIDITY_RPBL=1.31,RCVD_IN_VALIDITY_SAFE=-2,SPF_HELO_NONE=0.001,SPF_PASS=-0.001
+ autolearn=unavailable autolearn_force=no
+
+When two or more Siano tuners are connected in parallel (as in the PLEX
+PX-Q1UD, which is a 4-tuner enclosure with one USB plug), a kernel oops
+occurs in smsdvb_hotplug().
+
+smsmdtv:smscore_register_client: Client already exist.
+smsdvb:smsdvb_hotplug: smscore_register_client() failed -17
+BUG: kernel NULL pointer dereference, address: 00000000000002f8
+RIP: 0010:smsdvb_hotplug.cold+0x30/0x1a3 [smsdvb]
+
+This happens because smsdvb_hotplug() is called twice for the same tuner
+device due to a race condition. Suppose two tuners, dev_A and dev_B, are
+connected in parallel:
+
+CPU0                                   CPU1
+smsusb_probe(dev_A)                   |
+smscore_register_device(dev_A)        |
+// add dev_A to g_smscore_devices     |
+                                      |smsusb_probe(dev_B)
+                                      |smscore_register_device(dev_B)
+                                      |// add dev_B to g_smscore_devices
+smscore_notify_callbacks(dev_A)       |
+// nobody registered yet              |
+sms_board_load_modules()              |
+smscore_register_hotplug()            |
+smsdvb_hotplug(dev_B)                 |
+// first call                         |
+smsdvb_hotplug(dev_A)                 |
+                                      |smscore_notify_callbacks(dev_B)
+                                      |smsdvb_hotplug(dev_B)
+                                      |// second call and crash
+
+The second smsdvb_hotplug() always crashes; smscore_register_client()
+returns -EEXIST with the error message "Client already exist.", and the
+error unwinding path calls smsdvb_media_device_unregister() while
+client->coredev is NULL.
+
+To fix the race, add the device to g_smscore_devices within the same
+critical section that calls smscore_notify_callbacks().
+smscore_register_hotplug() calls smsdvb_hotplug() under the same mutex,
+so smsdvb_hotplug() is invoked exactly once per device.
+
+Fixes: 2e5c1ec8865a ("V4L/DVB (8258): add support for SMS1010 and SMS1150 based digital television devices")
+Assisted-by: LLM
+Signed-off-by: Ryotaro Banno <ryotaro.banno@gmail.com>
+---
+ drivers/media/common/siano/smscoreapi.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+
+base-commit: d7e7bca7169873b46e857c025c10f3336c1258d8
+
+diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
+index 017629e3cf84..c413f9696cb7 100644
+--- a/drivers/media/common/siano/smscoreapi.c
++++ b/drivers/media/common/siano/smscoreapi.c
+@@ -731,11 +731,6 @@ int smscore_register_device(struct smsdevice_params_t *params,
+ 
+ 	smscore_registry_settype(dev->devpath, params->device_type);
+ 
+-	/* add device to devices list */
+-	mutex_lock(&g_smscore_deviceslock);
+-	list_add(&dev->entry, &g_smscore_devices);
+-	mutex_unlock(&g_smscore_deviceslock);
+-
+ 	*coredev = dev;
+ 
+ 	pr_debug("device %p created\n", dev);
+@@ -892,6 +887,9 @@ int smscore_start_device(struct smscore_device_t *coredev)
+ 
+ 	mutex_lock(&g_smscore_deviceslock);
+ 
++	/* add device to devices list */
++	list_add(&coredev->entry, &g_smscore_devices);
++
+ 	rc = smscore_notify_callbacks(coredev, coredev->device, 1);
+ 	smscore_init_ir(coredev);
+ 
