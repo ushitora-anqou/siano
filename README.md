@@ -6,6 +6,10 @@ top of a vanilla kernel release. Verified against linux-6.18.58: the four
 patches below apply cleanly in this order, and the Siano modules
 (`smsmdtv.ko`, `smsdvb.ko`, `smsusb.ko`) build.
 
+The Nix flake in this repository packages the patched driver as a kernel
+module package, so a NixOS system can use it with two lines of
+configuration (see below).
+
 ## Patches
 
 Applied in the order below (i.e. glob order):
@@ -19,7 +23,56 @@ Applied in the order below (i.e. glob order):
 4. [media: usb: siano: don't set URB_FREE_BUFFER flag (v3)](https://lore.kernel.org/linux-media/09b616df-ea9f-4ea1-86be-ab600119f9ae@I-love.SAKURA.ne.jp/)
    (`v3-media-usb-siano-don-t-set-URB_FREE_BUFFER-flag.patch`)
 
-## Applying
+## Usage on NixOS (flake)
+
+The flake rebuilds the in-tree Siano modules with the patches applied,
+following the [out-of-tree kernel module] recipe of the NixOS wiki, and
+exposes them as `config.boot.kernelPackages.siano`. Because the packaged
+modules carry the same names as the kernel's stock ones, adding the package
+to `boot.extraModulePackages` *replaces* the stock modules in the system's
+module tree — no full kernel rebuild needed.
+
+[out-of-tree kernel module]: https://wiki.nixos.org/wiki/Linux_kernel#Out-of-tree_kernel_modules
+
+Add the flake to your system and import its NixOS module:
+
+```nix
+# your flake.nix
+{
+  inputs.siano.url = "github:ushitora-anqou/siano";
+
+  outputs = {nixpkgs, siano, ...}: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      modules = [
+        {nixpkgs.hostPlatform = "x86_64-linux";}
+        ./configuration.nix
+        siano.nixosModules.default
+      ];
+    };
+  };
+}
+```
+
+That is all: the NixOS module applies the flake's overlay and adds the
+patched modules to `boot.extraModulePackages` for the kernel you run.
+The module ships USB device ID aliases, so udev loads it on hotplug.
+
+The package is built per kernel: `config.boot.kernelPackages.siano`
+always matches whatever `boot.kernelPackages` is set to. The patches
+currently apply to linux-6.18.y; on other kernel lines (e.g.
+`linuxPackages_latest`) the build fails at patch-application time, which
+is intentional and loud.
+
+To build the modules standalone against the default kernel of this
+flake's nixpkgs (useful as a smoke test):
+
+    nix build github:ushitora-anqou/siano
+
+## Applying and building manually (development)
+
+The sections below describe the manual, in-tree build used to develop and
+verify the patches. The Nix build environment is managed by the flake
+(`nix develop`, or direnv via `.envrc`).
 
 Kernel sources are expected under `misc/` (git-ignored). Extract the
 vanilla tarball there, apply the patches, then build inside the tree:
@@ -28,10 +81,7 @@ vanilla tarball there, apply the patches, then build inside the tree:
     cd misc/linux-6.18.58
     for p in /path/to/this/repo/*.patch; do patch -p1 < "$p"; done
 
-## Building
-
-The build environment is managed by the Nix flake (`nix develop`, or
-direnv via `.envrc`):
+Then build:
 
     make defconfig
     scripts/config --module MEDIA_SUPPORT --enable MEDIA_USB_SUPPORT \
