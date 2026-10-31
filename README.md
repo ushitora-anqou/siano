@@ -57,6 +57,12 @@ That is all: the NixOS module applies the flake's overlay and adds the
 patched modules to `boot.extraModulePackages` for the kernel you run.
 The module ships USB device ID aliases, so udev loads it on hotplug.
 
+```
+$ journalctl -k
+...
+Oct 31 07:47:43 nixos kernel: smsmdtv: loading out-of-tree module taints kernel.
+```
+
 The package is built per kernel: `config.boot.kernelPackages.siano`
 always matches whatever `boot.kernelPackages` is set to. The patches
 currently apply to linux-6.18.y; on other kernel lines (e.g.
